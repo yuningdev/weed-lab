@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "weed-api"
+version = "0.1.0"
+description = ""
+authors = ["YuNing Chang <yuning.dev@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.115.3"
+boto3 = "^1.35.47"
+
+
+[tool.poetry.group.dev.dependencies]
+uvicorn = "^0.32.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+start = "weed_api.main:start"
