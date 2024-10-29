@@ -9,6 +9,7 @@ readme = "README.md"
 python = "^3.11"
 fastapi = "^0.115.3"
 boto3 = "^1.35.47"
+python-dotenv = "^1.0.1"
 
 
 [tool.poetry.group.dev.dependencies]
