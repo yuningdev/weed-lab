@@ -303,6 +303,17 @@ files = [
 cli = ["click (>=5.0)"]
 
 [[package]]
+name = "python-multipart"
+version = "0.0.16"
+description = "A streaming multipart parser for Python"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "python_multipart-0.0.16-py3-none-any.whl", hash = "sha256:c2759b7b976ef3937214dfb592446b59dfaa5f04682a076f78b117c94776d87a"},
+    {file = "python_multipart-0.0.16.tar.gz", hash = "sha256:8dee37b88dab9b59922ca173c35acb627cc12ec74019f5cd4578369c6df36554"},
+]
+
+[[package]]
 name = "s3transfer"
 version = "0.10.3"
 description = "An Amazon S3 Transfer Manager"
@@ -407,4 +418,4 @@ standard = ["colorama (>=0.4)", "httptools (>=0.5.0)", "python-dotenv (>=0.13)",
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "35d4f86b9da6066ed7ebf751bdf80b23cbe106a59aa8bb8f3531ae6ce8416bd8"
+content-hash = "249306c3132e205bee859cb8534495ea6627bbb7e211693faea81d637fb0b892"
