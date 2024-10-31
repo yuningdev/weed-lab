@@ -1,0 +1,20 @@
+{
+  "identities": [
+    {
+      "name": "me",
+      "credentials": [
+        {
+          "accessKey": "any",
+          "secretKey": "any"
+        }
+      ],
+      "actions": [
+        "Read:bucket1",
+        "Write:bucket1",
+        "List:bucket1",
+        "Tagging:bucket1",
+        "Admin:bucket1"
+      ]
+    }
+  ]
+}
