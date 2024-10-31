@@ -25,8 +25,8 @@ async def read_root():
     return {"message": "Do you wanna cook?"}
 
 
-@app.get("/s3/bucket", tags=["S3"])
-async def read_s3_bucket():
+@app.get("/s3/buckets", tags=["S3"])
+async def get_s3_buckets():
     try:
         response = s3_client.list_buckets()
         buckets = [bucket["Name"] for bucket in response]
@@ -35,10 +35,10 @@ async def read_s3_bucket():
         raise HTTPException(status_code=500, detail="S3 Error, {}".format(err))
 
 
-@app.post("/s3/bucket", tags=["S3"])
-async def create_s3_bucket(bucket_name: str):
+@app.post("/s3/buckets", tags=["S3"])
+async def create_s3_buckets(bucket_name: str):
     try:
-        s3_client.create_buckets(bucket_name=bucket_name)
+        s3_client.create_buckets(bucket_name)
         return JSONResponse(
             status_code=201,
             content={"message": "Successfully create {}".format(bucket_name)},
@@ -47,23 +47,44 @@ async def create_s3_bucket(bucket_name: str):
         raise HTTPException(status_code=500, detail="S3 Error, {}".format(err))
 
 
+@app.delete("/s3/buckets", tags=["S3"])
+async def delete_s3_buckets(bucket_name: str):
+    try:
+        s3_client.delete_buckets(bucket_name)
+        return JSONResponse(
+            status_code=201,
+            content={"message": "Successfully delete {}".format(bucket_name)},
+        )
+    except Exception as err:
+        raise HTTPException(status_code=500, detail="S3 Error, {}".format(err))
+
+
 @app.post("/s3/file", tags=["S3"])
 async def upload_file_to_s3(
-    bucket_name: str, file: UploadFile, s3_path: str | None = None
+    bucket_name: str, file: UploadFile, object_key: str | None = None
 ):
     try:
         file_name = file.filename
-        s3_path = s3_path or file_name
-        s3_client.update_file(file.file, bucket_name, s3_path)
+        object_key = object_key or file_name
+        s3_client.update_file(file.file, bucket_name, object_key)
         return JSONResponse(
             status_code=201,
             content={
                 "message": "Successfully create file {} with path {} on bucket name {}".format(
-                    file_name, s3_path, bucket_name
+                    file_name, object_key, bucket_name
                 )
             },
         )
     except Exception as err:
+        raise HTTPException(status_code=500, detail="S3 Error, {}".format(err))
+
+
+@app.get("/s3/{bucket_name}/objects", tags=["S3"])
+async def get_s3_objects(bucket_name: str, prefix: str | None = ""):
+    try:
+        response = s3_client.list_objects(bucket_name, prefix)
+        return JSONResponse(status_code=200, content=response)
+    except SystemError as err:
         raise HTTPException(status_code=500, detail="S3 Error, {}".format(err))
 
 
