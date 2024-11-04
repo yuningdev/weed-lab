@@ -1,6 +1,8 @@
 <script>
 	import { Tree } from '$lib/components/tree';
-	import { Button } from '$lib/components';
+	import { Button } from '$lib/components/ui/button';
+	import { AddBucket } from '$lib/components/dialog';
+	import * as Dialog from '$lib/components/ui/dialog/index.js';
 </script>
 
 <svelte:head>
@@ -19,7 +21,13 @@
 						<span class="text-2xl">Bucket</span>
 						<span>--</span>
 					</div>
-					<Button size="sm">+ Bucket</Button>
+
+					<AddBucket />
+
+					<!-- <Dialog.Root>
+
+						<Button size="sm">Add Bucket</Button>
+					</Dialog.Root> -->
 				</div>
 				<!-- The tree folder -->
 				<div class="rounded-lg bg-white p-4 shadow-sm dark:bg-gray-950">

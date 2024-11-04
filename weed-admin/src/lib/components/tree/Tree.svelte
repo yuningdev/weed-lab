@@ -1,5 +1,5 @@
 <script>
-	import { IconFile, IconOpenFolder, IconArrowDown, IconBucket } from '$lib/components/ui/icon';
+	import { IconFile, IconOpenFolder, IconArrowDown, IconBucket } from '$lib/components/icon';
 	import { Tree } from './index';
 
 	/**
