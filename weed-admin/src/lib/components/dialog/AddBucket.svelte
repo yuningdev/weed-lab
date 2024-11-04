@@ -4,7 +4,6 @@
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Label } from '$lib/components/ui/label/index.js';
 
-	// let { dialogOpen = true } = $props();
 	let dialogOpen = false;
 	let bucketName = '';
 
@@ -17,10 +16,7 @@
 </script>
 
 <Dialog.Root bind:open={dialogOpen}>
-	<!-- <Dialog.Trigger class={buttonVariants({ variant: 'default' })}>Add Bucket</Dialog.Trigger> -->
-
 	<Button onclick={() => (dialogOpen = true)}>Add Bucket</Button>
-
 	<Dialog.Content class="sm:max-w-[450px]">
 		<Dialog.Header>
 			<Dialog.Title>Add Bucket</Dialog.Title>

@@ -1,9 +1,6 @@
 <script>
 	import { Tree } from '$lib/components/tree';
-	import { Button } from '$lib/components/ui/button';
 	import { AddBucket as DialogAddBucket } from '$lib/components/dialog';
-	import * as Dialog from '$lib/components/ui/dialog/index.js';
-
 </script>
 
 <svelte:head>
