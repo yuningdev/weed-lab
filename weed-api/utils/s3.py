@@ -1,5 +1,6 @@
 import os
 import logging
+import re
 from dotenv import load_dotenv
 import boto3
 from botocore.exceptions import ClientError
@@ -14,6 +15,10 @@ S3_BUCKET_NAME = os.environ.get("S3_BUCKET_NAME")
 S3_ENDPOINT_URL = os.environ.get("S3_ENDPOINT_URL")
 S3_REGION = os.environ.get("S3_REGION", "us-east-1")
 
+def is_valid_bucket_name(bucket_name):
+    # Basic regex for common constraints:
+    regex = r'^[a-z0-9.-]{1,255}$'
+    return re.match(regex, bucket_name) is not None
 
 class S3Client:
     def __init__(
@@ -30,10 +35,15 @@ class S3Client:
             endpoint_url=endpoint_url,
             region_name=region_name,
         )
+    
+    
 
     def create_buckets(self, bucket_name):
         try:
-            self.s3.create_bucket(Bucket=bucket_name)
+            if is_valid_bucket_name(bucket_name):
+                self.s3.create_bucket(Bucket=bucket_name)
+            else:
+                raise Exception("Invalid bucket name")
         except ClientError as error:
             logging.error("[S3 Error] create bucket error: {}".format(error))
             return False
