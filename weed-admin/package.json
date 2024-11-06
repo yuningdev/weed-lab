@@ -42,5 +42,8 @@
 		"tailwindcss-animate": "^1.0.7",
 		"typescript": "^5.0.0",
 		"vite": "^5.0.3"
+	},
+	"dependencies": {
+		"@sveltestack/svelte-query": "^1.6.0"
 	}
 }

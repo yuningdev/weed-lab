@@ -15,10 +15,22 @@ const api = ky.extend({ prefixUrl: API });
  */
 const fetchApi = async (method = 'GET', topic = '', url = '', params) => {
 	const endpoint = `${topic}${url}`;
+
+	/**
+	 * @type {{data?: any}}
+	 */
+	let res = {};
+
 	if (method === 'GET') {
-		return await api.get(endpoint, { searchParams: new URLSearchParams(params) }).json();
+		res = await api.get(endpoint, { searchParams: new URLSearchParams(params) }).json();
 	} else if (method === 'POST') {
-		return await api.post(endpoint, { json: params }).json();
+		res = await api.post(endpoint, { json: params }).json();
+	}
+
+	if (res.hasOwnProperty('data')) {
+		return res.data;
+	} else {
+		return res;
 	}
 };
 

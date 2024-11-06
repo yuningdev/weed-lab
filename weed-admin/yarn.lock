@@ -457,6 +457,11 @@
     magic-string "^0.30.12"
     vitefu "^1.0.3"
 
+"@sveltestack/svelte-query@^1.6.0":
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/@sveltestack/svelte-query/-/svelte-query-1.6.0.tgz#d175863557a7abe6a8dcb0da2080a9f43ae8d1d1"
+  integrity sha512-C0wWuh6av1zu3Pzwrg6EQmX3BhDZQ4gMAdYu6Tfv4bjbEZTB00uEDz52z92IZdONh+iUKuyo0xRZ2e16k2Xifg==
+
 "@swc/helpers@^0.5.0":
   version "0.5.13"
   resolved "https://registry.yarnpkg.com/@swc/helpers/-/helpers-0.5.13.tgz#33e63ff3cd0cade557672bd7888a39ce7d115a8c"
