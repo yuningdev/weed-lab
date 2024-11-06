@@ -4,6 +4,9 @@ import uvicorn
 from fastapi import FastAPI, HTTPException, UploadFile
 from fastapi.responses import JSONResponse
 from utils.s3 import S3Client
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+
 
 app = FastAPI(
     title="Weed Lab API",
@@ -17,7 +20,19 @@ app = FastAPI(
         {"name": "DuckDB", "description": "Operations with duckdb on object storage"},
     ],
 )
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 s3_client = S3Client()
+
+class S3RequestBody(BaseModel):
+    bucket_name: str
 
 
 @app.get("/")
@@ -36,24 +51,24 @@ async def get_s3_buckets():
 
 
 @app.post("/s3/buckets", tags=["S3"])
-async def create_s3_buckets(bucket_name: str):
+async def create_s3_buckets(item: S3RequestBody):
     try:
-        s3_client.create_buckets(bucket_name)
+        s3_client.create_buckets(item.bucket_name)
         return JSONResponse(
             status_code=201,
-            content={"message": "Successfully create {}".format(bucket_name)},
+            content={"message": "Successfully create {}".format(item.bucket_name)},
         )
     except Exception as err:
         raise HTTPException(status_code=500, detail="S3 Error, {}".format(err))
 
 
 @app.delete("/s3/buckets", tags=["S3"])
-async def delete_s3_buckets(bucket_name: str):
+async def delete_s3_buckets(item: S3RequestBody):
     try:
-        s3_client.delete_buckets(bucket_name)
+        s3_client.delete_buckets(item.bucket_name)
         return JSONResponse(
             status_code=201,
-            content={"message": "Successfully delete {}".format(bucket_name)},
+            content={"message": "Successfully delete {}".format(item.bucket_name)},
         )
     except Exception as err:
         raise HTTPException(status_code=500, detail="S3 Error, {}".format(err))
