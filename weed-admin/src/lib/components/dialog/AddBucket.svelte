@@ -30,7 +30,7 @@
 </script>
 
 <Dialog.Root bind:open={dialogOpen}>
-	<Button onclick={() => (dialogOpen = true)}>Add Bucket</Button>
+	<Button onclick={() => (dialogOpen = true)} class="h-6 text-base">Add Bucket</Button>
 	<Dialog.Content class="sm:max-w-[450px]">
 		<Dialog.Header>
 			<Dialog.Title>Add Bucket</Dialog.Title>

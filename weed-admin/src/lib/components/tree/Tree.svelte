@@ -84,45 +84,43 @@
 
 {#each treeData as data}
 	{@const { id, isExpand, children, type, name } = data}
-	<div>
-		<div
-			class={`flex items-center gap-2 px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-800 ${
-				type === 'folder' ? 'cursor-pointer' : ''
+	<div
+		class={`flex items-center gap-2 px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-800 ${
+			type === 'folder' ? 'cursor-pointer' : ''
+		}`}
+		role="button"
+		aria-label="click"
+		tabindex={0}
+		onkeydown={(eve) => {}}
+		onclick={() => ['bucket', 'folder'].includes(type) && handleToggle(id)}
+	>
+		{#if type === 'folder'}
+			<IconOpenFolder class="h-5 w-5 text-primary" />
+		{:else if type === 'bucket'}
+			<IconBucket class="h-5 w-5 text-primary" />
+		{:else}
+			<IconFile class="h-5 w-5 text-gray-500 dark:text-gray-400" />
+		{/if}
+
+		<span
+			class={`flex-1 text-sm font-medium ${
+				type === 'file' ? 'text-gray-900 dark:text-gray-50' : 'text-gray-700 dark:text-gray-300'
 			}`}
-			role="button"
-			aria-label="click"
-			tabindex={0}
-			onkeydown={(eve) => {}}
-			onclick={() => ['bucket', 'folder'].includes(type) && handleToggle(id)}
 		>
-			{#if type === 'folder'}
-				<IconOpenFolder class="h-5 w-5 text-primary" />
-			{:else if type === 'bucket'}
-				<IconBucket class="h-5 w-5 text-primary" />
-			{:else}
-				<IconFile class="h-5 w-5 text-gray-500 dark:text-gray-400" />
-			{/if}
+			{name}
+		</span>
 
-			<span
-				class={`flex-1 text-sm font-medium ${
-					type === 'file' ? 'text-gray-900 dark:text-gray-50' : 'text-gray-700 dark:text-gray-300'
-				}`}
-			>
-				{name}
-			</span>
-
-			{#if children !== undefined}
-				{#if ['bucket', 'folder'].includes(type) && children.length > 0}
-					<IconArrowDown class="h-4 w-4 text-gray-500 dark:text-gray-400" />
-				{/if}
-			{/if}
-		</div>
-		{#if children}
-			{#if isExpand && children.length > 0}
-				<div class="pl-6">
-					<Tree treeData={children} />
-				</div>
+		{#if children !== undefined}
+			{#if ['bucket', 'folder'].includes(type) && children.length > 0}
+				<IconArrowDown class="h-4 w-4 text-gray-500 dark:text-gray-400" />
 			{/if}
 		{/if}
 	</div>
+	{#if children}
+		{#if isExpand && children.length > 0}
+			<div class="pl-6">
+				<Tree treeData={children} />
+			</div>
+		{/if}
+	{/if}
 {/each}
