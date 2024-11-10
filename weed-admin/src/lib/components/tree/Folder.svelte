@@ -9,7 +9,7 @@
 {#each data as datum}
 	<Directory
 		id={datum.id}
-		type="bucket"
+		type={datum.type}
 		name={datum.name}
 		onToggleHandle={(id) => {
 			if (handleOnClick) {
