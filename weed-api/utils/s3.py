@@ -98,13 +98,13 @@ class S3Client:
             operation_parameters = {"Bucket": bucket_name, "Prefix": prefix}
             page_iterator = paginator.paginate(**operation_parameters)
 
+
             first_level_update_time = {}
 
             for page in page_iterator:
-
                 if "Contents" in page:
                     for obj in page["Contents"]:
-                        key = obj["Key"]
+                        key = obj["Key"].replace(prefix, "")
                         if "/" in key:
                             dir = key.strip("/").split("/")[0]
 
@@ -123,7 +123,7 @@ class S3Client:
             response = [
                 {
                     **item,
-                    "Key": item["Key"].split("/")[0],
+                    "Id": item["Key"].replace(prefix, "").split("/")[0],
                     "LastModified": item["LastModified"].strftime("%Y-%m-%d %H:%M:%S"),
                 }
                 for item in first_level_update_time.values()

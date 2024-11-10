@@ -97,7 +97,12 @@ async def upload_file_to_s3(
 @app.get("/s3/{bucket_name}/objects", tags=["S3"])
 async def get_s3_objects(bucket_name: str, prefix: str | None = ""):
     try:
-        response = s3_client.list_objects(bucket_name, prefix)
+        _prefix = prefix
+        if _prefix:
+            last_txt = _prefix.strip().split()[-1]
+            if not last_txt.endswith("/"):
+                _prefix = _prefix + "/"
+        response = s3_client.list_objects(bucket_name, _prefix)
         return JSONResponse(status_code=200, content=response)
     except SystemError as err:
         raise HTTPException(status_code=500, detail="S3 Error, {}".format(err))
