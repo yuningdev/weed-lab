@@ -4,6 +4,7 @@ import uvicorn
 from fastapi import FastAPI, HTTPException, UploadFile
 from fastapi.responses import JSONResponse
 from utils.s3 import S3Client
+from utils.duckdb import DuckDB
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
@@ -30,6 +31,8 @@ app.add_middleware(
 )
 
 s3_client = S3Client()
+duckDb_client = DuckDB()
+
 
 class S3RequestBody(BaseModel):
     bucket_name: str
@@ -106,6 +109,20 @@ async def get_s3_objects(bucket_name: str, prefix: str | None = ""):
         return JSONResponse(status_code=200, content=response)
     except SystemError as err:
         raise HTTPException(status_code=500, detail="S3 Error, {}".format(err))
+
+
+###################################### DuckDB API ######################################
+
+
+@app.get("/duckdb/s3", tags=["DuckDB"])
+async def get_duckdb(bucket_name: str, object_key: str | None = ""):
+    try:
+        response = duckDb_client.fetchSample(
+            bucket_name, object_key
+        )
+        return JSONResponse(status_code=200, content=response)
+    except SystemError as err:
+        raise HTTPException(status_code=500, detail="DuckDB Error, {}".format(err))
 
 
 def start():
