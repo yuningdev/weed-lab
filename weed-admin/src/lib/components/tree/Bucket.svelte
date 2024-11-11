@@ -11,9 +11,9 @@
 		id={datum.id}
 		type="bucket"
 		name={datum.name}
-		onToggleHandle={(id) => {
+		handleOnClick={() => {
 			if (handleOnClick) {
-				handleOnClick(id);
+				handleOnClick(datum);
 			}
 		}}
 	/>

@@ -1,11 +1,13 @@
 <script>
-	import { Tree } from '$lib/components/tree';
 	import { AddBucket as DialogAddBucket } from '$lib/components/dialog';
-	import { Bucket } from '$lib/components/tree';
-	import { Folder } from '$lib/components/tree';
+	import Directory from '../tree/Directory.svelte';
 	import { createQuery } from '@tanstack/svelte-query';
 	import fetchApi from '$lib/fetch/fetch';
 	import * as Breadcrumb from '../ui/breadcrumb';
+
+	/**
+	 * @typedef {{id: string | number, name: string}} dirConfig
+	 */
 
 	/**
 	 * @type {fileConfig[]}
@@ -33,13 +35,28 @@
 	};
 
 	/**
-	 * @param {string[]} data
+	 *
+	 * @param {string} prefix
+	 * @param {string} name
+	 */
+	const getPrefixType = (prefix, name) => {
+		const splitPrefix = prefix.split('/');
+		const lastEle = splitPrefix[splitPrefix.length - 1];
+		if (lastEle === name) {
+			return 'file';
+		} else {
+			return 'folder';
+		}
+	};
+
+	/**
+	 * @param {{Id: string, Key: string}[]} data
 	 */
 	const parseDirs = (data) => {
 		dirs = data.map((dt, index) => ({
 			id: dt.Id,
 			name: dt.Id,
-			type: dt.Key.includes('/') ? 'folder' : 'file'
+			type: getPrefixType(dt.Key, dt.Id)
 		}));
 	};
 
@@ -55,8 +72,8 @@
 				'GET',
 				's3',
 				`/${s3Path[1]}/objects`,
-				s3Path[2] && {
-					prefix: s3Path[2]
+				s3Path.length > 2 && {
+					prefix: s3Path.slice(2).join('/')
 				}
 			),
 		enabled: s3Path.length > 1
@@ -71,13 +88,24 @@
 	}
 
 	/**
-	 * @param {string | undefined} id
+	 * @param {dirConfig} data
 	 */
-	const handleOnBucketClick = (id) => {
-		const _bucket = buckets.find((bucket) => bucket.id === id);
-		if (_bucket) {
-			s3Path = [...s3Path, _bucket?.name];
-		}
+	const handleOnBucketClick = (data) => {
+		s3Path = [...s3Path, data?.name];
+	};
+
+	/**
+	 * @param {dirConfig} data
+	 */
+	const handleOnFolderClick = (data) => {
+		s3Path = [...s3Path, data?.name];
+	};
+
+	/**
+	 * @param {dirConfig} data
+	 */
+	const handleOnFileClick = (data) => {
+		console.log("TODO: render file based on it's type");
 	};
 </script>
 
@@ -112,11 +140,32 @@
 </div>
 <div class="flex-auto rounded-lg bg-white p-4 shadow-sm dark:bg-gray-950">
 	{#if s3Path.length === 1}
-		<Bucket data={buckets} handleOnClick={handleOnBucketClick} />
+		{#each buckets as _bucket}
+			<Directory
+				id={_bucket.id}
+				type="bucket"
+				name={_bucket.name}
+				handleOnClick={handleOnBucketClick}
+			/>
+		{/each}
 	{:else}
 		<div>
-			<Folder data={dirs} />
-			<!-- todo render folders and files -->
+			{#each dirs.filter((d) => d.type === 'folder') as _dir}
+				<Directory
+					id={_dir.id}
+					type={_dir.type}
+					name={_dir.name}
+					handleOnClick={handleOnFolderClick}
+				/>
+			{/each}
+			{#each dirs.filter((d) => d.type === 'file') as _dir}
+				<Directory
+					id={_dir.id}
+					type={_dir.type}
+					name={_dir.name}
+					handleOnClick={handleOnFileClick}
+				/>
+			{/each}
 		</div>
 	{/if}
 </div>

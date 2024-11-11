@@ -11,7 +11,7 @@
 		id={datum.id}
 		type={datum.type}
 		name={datum.name}
-		onToggleHandle={(id) => {
+		handleOnClick={(id) => {
 			if (handleOnClick) {
 				handleOnClick(id);
 			}
