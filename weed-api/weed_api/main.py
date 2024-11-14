@@ -2,7 +2,7 @@
 import os
 import uvicorn
 from fastapi import FastAPI, HTTPException, UploadFile
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 from utils.s3 import S3Client
 from utils.duckdb import DuckDB
 from fastapi.middleware.cors import CORSMiddleware
@@ -97,17 +97,38 @@ async def upload_file_to_s3(
         raise HTTPException(status_code=500, detail="S3 Error, {}".format(err))
 
 
+@app.get("/s3/file/{bucket_name}", tags=["S3"])
+async def get_s3_file(
+    bucket_name: str, object_key: str, extension: str, output: str | None = "json"
+):
+    if output != "json" and output != "blob":
+        raise HTTPException(
+            status_code=400, detail="Output data should be json or blob"
+        )
+    try:
+        response = s3_client.read_file(bucket_name, object_key, extension, output)
+        if output == "blob":
+            response.seek(0)
+            return StreamingResponse(response)
+            # filename = object_key.strip().split("/")[-1]
+            # headers={"Content-Disposition": "attachment; filename={}".format(filename)}
+
+        return JSONResponse(status_code=200, content=response)
+    except Exception as err:
+        raise HTTPException(status_code=500, detail="S3 Error, {}".format(err))
+
+
 @app.get("/s3/{bucket_name}/objects", tags=["S3"])
 async def get_s3_objects(bucket_name: str, prefix: str | None = ""):
     try:
         _prefix = prefix
         if _prefix:
-            last_txt = _prefix.strip().split()[-1]
+            last_txt = _prefix.strip().split("/")[-1]
             if not last_txt.endswith("/"):
                 _prefix = _prefix + "/"
         response = s3_client.list_objects(bucket_name, _prefix)
         return JSONResponse(status_code=200, content=response)
-    except SystemError as err:
+    except Exception as err:
         raise HTTPException(status_code=500, detail="S3 Error, {}".format(err))
 
 
@@ -115,13 +136,12 @@ async def get_s3_objects(bucket_name: str, prefix: str | None = ""):
 
 
 @app.get("/duckdb/s3", tags=["DuckDB"])
-async def get_duckdb(bucket_name: str, object_key: str | None = ""):
+async def get_duckdb(bucket_name: str, object_key: str):
     try:
-        response = duckDb_client.fetchSample(
-            bucket_name, object_key
-        )
+        response = duckDb_client.fetchSample(bucket_name, object_key)
+        print("**", response)
         return JSONResponse(status_code=200, content=response)
-    except SystemError as err:
+    except Exception as err:
         raise HTTPException(status_code=500, detail="DuckDB Error, {}".format(err))
 
 

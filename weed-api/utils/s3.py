@@ -1,4 +1,6 @@
 import os
+import io
+import polars as PL
 import logging
 import re
 from dotenv import load_dotenv
@@ -15,10 +17,12 @@ S3_BUCKET_NAME = os.environ.get("S3_BUCKET_NAME")
 S3_ENDPOINT_URL = os.environ.get("S3_ENDPOINT_URL")
 S3_REGION = os.environ.get("S3_REGION", "us-east-1")
 
+
 def is_valid_bucket_name(bucket_name):
     # Basic regex for common constraints:
-    regex = r'^[a-z0-9.-]{1,255}$'
+    regex = r"^[a-z0-9.-]{1,255}$"
     return re.match(regex, bucket_name) is not None
+
 
 class S3Client:
     def __init__(
@@ -35,8 +39,6 @@ class S3Client:
             endpoint_url=endpoint_url,
             region_name=region_name,
         )
-    
-    
 
     def create_buckets(self, bucket_name):
         try:
@@ -98,7 +100,6 @@ class S3Client:
             operation_parameters = {"Bucket": bucket_name, "Prefix": prefix}
             page_iterator = paginator.paginate(**operation_parameters)
 
-
             first_level_update_time = {}
 
             for page in page_iterator:
@@ -134,3 +135,46 @@ class S3Client:
         except ClientError as error:
             logging.error("[S3 Error] list object error: {}".format(error))
             return []
+
+    def read_file(self, bucket_name, object_key, extension, output="json"):
+        if not extension in ["csv", "parq", "parquet", "json"]:
+            raise Exception(
+                "[S3 Error] the extension is not valid, please provide csv, parq, parquet, json"
+            )
+
+        if not output in ["json", "blob", "df"]:
+            raise Exception(
+                "[S3 Error] the output is not valid, please provide json, blob, df"
+            )
+
+        try:
+            response = self.s3.get_object(Bucket=bucket_name, Key=object_key)
+            streaming_data = response["Body"].read()
+
+            # The streaming data is empty binary b''
+            if not streaming_data:
+                return
+
+            buffer = io.BytesIO(streaming_data)
+
+            if output == "blob":
+                return buffer
+
+            df = PL.DataFrame()
+
+            if extension == "csv":
+                df = PL.read_csv(buffer)
+
+            if extension == "parq" or extension == "parquet":
+                df = PL.read_parquet(buffer)
+
+            if output == "df":
+                return df
+            else:
+                return df.to_dicts()
+
+        except ClientError as error:
+            print("error", error)
+
+            logging.error("[S3 Error] read file error: {}".format(error))
+            # raise Exception(error)
