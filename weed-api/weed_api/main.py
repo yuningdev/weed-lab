@@ -139,8 +139,7 @@ async def get_s3_objects(bucket_name: str, prefix: str | None = ""):
 async def get_duckdb(bucket_name: str, object_key: str):
     try:
         response = duckDb_client.fetchSample(bucket_name, object_key)
-        print("**", response)
-        return JSONResponse(status_code=200, content=response)
+        return JSONResponse(status_code=200, content=response[0])
     except Exception as err:
         raise HTTPException(status_code=500, detail="DuckDB Error, {}".format(err))
 
