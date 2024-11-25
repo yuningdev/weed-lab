@@ -47,29 +47,45 @@ class DuckDB:
             """
         )
 
-    def read_s3(self, bucket="", object_key="", output="json", limit=100):
+    def read_s3(self, bucket="", object_key="", extension="", output="json", limit=100):
+
+        print(extension, output)
+        if not extension in ["csv", "parq", "parquet", "json"]:
+            raise Exception(
+                "[S3 Error] the extension is not valid, please provide csv, parq, parquet, json"
+            )
 
         if not output in ["json", "blob", "df"]:
             raise Exception(
                 "[DuckDB Error] the output is not valid, please provide json, blob, df"
             )
-        
-    
+
         url = f"s3://{bucket}/{object_key}"
 
         try:
 
-
             buffer = io.BytesIO()
-            query = f"SELECT * FROM '{url}'" + ("" if limit == None else f" LIMIT {limit};")
-            res = self.conn.execute(query).fetchall()
+            read_query = f"""'{url}'"""
 
-            df = PL.DataFrame(res, strict=False)
+            if extension == "csv":
+                read_query = f"""read_csv_auto('{url}')"""
+            if extension == "parq" or extension == "parquet":
+                read_query = f"""read_parquet('{url}')"""
+            if extension == "json":
+                read_query = f"""read_json_auto('{url}')"""
 
-            print(df.head())
+            query = f"SELECT * FROM {read_query}" + (
+                "" if limit == None else f" LIMIT {limit};"
+            )
+
+            cursor = self.conn.execute(query)
+            res = cursor.fetchall()
+            cols = [desc[0] for desc in cursor.description]
+
+            df = PL.DataFrame(res, schema=cols, strict=False)
 
             if output == "blob":
-                duckdb.from_df(df).to_parquet(buffer)
+                df.write_parquet(buffer)
                 return buffer
 
             if output == "df":
@@ -79,5 +95,23 @@ class DuckDB:
                 return df.to_dicts()
 
         except Exception as error:
-            logging.error("[DuckDB Error] query s3 error: {}".format(error))
+            logging.error("[DuckDB Error] read_s3 error: {}".format(error))
+            raise Exception(error)
+
+    def read_s3_schema(self, bucket="", object_key=""):
+
+        url = f"s3://{bucket}/{object_key}"
+
+        try:
+
+            query = f"SELECT * FROM '{url}';"
+            cursor = self.conn.execute(query)
+
+            schema = [
+                {"id": desc[0], "dt_type": desc[1].lower()} for desc in cursor.description
+            ]
+            return schema
+
+        except Exception as error:
+            logging.error("[DuckDB Error] query read_s3_schema error: {}".format(error))
             raise Exception(error)
