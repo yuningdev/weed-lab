@@ -1,6 +1,7 @@
 # fastapi_project/main.py
 import os
 import uvicorn
+import json
 from fastapi import FastAPI, HTTPException, UploadFile
 from fastapi.responses import JSONResponse, StreamingResponse
 from utils.s3 import S3Client
@@ -110,8 +111,6 @@ async def get_s3_file(
         if output == "blob":
             response.seek(0)
             return StreamingResponse(response)
-            # filename = object_key.strip().split("/")[-1]
-            # headers={"Content-Disposition": "attachment; filename={}".format(filename)}
 
         return JSONResponse(status_code=200, content=response)
     except Exception as err:
@@ -136,10 +135,17 @@ async def get_s3_objects(bucket_name: str, prefix: str | None = ""):
 
 
 @app.get("/duckdb/s3", tags=["DuckDB"])
-async def get_duckdb(bucket_name: str, object_key: str):
+async def get_duckdb(
+    bucket_name: str, object_key: str, output: str | None = "json", limit=1
+):
     try:
-        response = duckDb_client.fetchSample(bucket_name, object_key)
-        return JSONResponse(status_code=200, content=response[0])
+        response = duckDb_client.read_s3(bucket_name, object_key, output, limit)
+
+        if output == "blob":
+            response.seek(0)
+            return StreamingResponse(response)
+        dt = json.dumps(response)
+        return JSONResponse(status_code=200, content=response)
     except Exception as err:
         raise HTTPException(status_code=500, detail="DuckDB Error, {}".format(err))
 
