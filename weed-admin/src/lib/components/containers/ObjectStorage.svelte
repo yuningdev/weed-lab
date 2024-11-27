@@ -1,5 +1,6 @@
 <script>
 	import { AddBucket as DialogAddBucket } from '$lib/components/dialog';
+	import { storeQueryStatement } from '../../stores';
 	import Directory from '../tree/Directory.svelte';
 	import { createQuery } from '@tanstack/svelte-query';
 	import fetchApi from '$lib/fetch/fetch';
@@ -105,7 +106,15 @@
 	 * @param {dirConfig} data
 	 */
 	const handleOnFileClick = (data) => {
-		console.log("TODO: render file based on it's type");
+		if (s3Path.length > 1) {
+			storeQueryStatement.update((config) => ({
+				...config,
+				queryDuckDBS3Schema: {
+					bucket_name: s3Path[1],
+					object_key: s3Path.slice(2, s3Path.length).join('/') + '/' + data['id']
+				}
+			}));
+		}
 	};
 </script>
 
@@ -148,7 +157,7 @@
 				handleOnClick={handleOnBucketClick}
 			/>
 		{/each}
-	{:else}
+	{:else if s3Path.length > 1}
 		<div>
 			{#each dirs.filter((d) => d.type === 'folder') as _dir}
 				<Directory

@@ -1,6 +1,6 @@
 <script>
 	import { QueryClient, QueryClientProvider } from '@tanstack/svelte-query';
-	import { ObjectStorage } from '$lib/components/containers';
+	import { ObjectStorage, Panel } from '$lib/components/containers';
 
 	// Create a client
 	const queryClient = new QueryClient({
@@ -30,7 +30,9 @@
 				</div> -->
 			</div>
 
-			<div class="flex w-full w-full flex-1 border-2 border-dashed border-gray-100"></div>
+			<div class="h-2/4 w-full">
+				<Panel />
+			</div>
 		</div>
 	</div>
 </QueryClientProvider>
